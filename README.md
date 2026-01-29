@@ -18,8 +18,19 @@ docker build -t akolov/claude .
 
 ## Usage
 
+Recommended: make the script available, e.g in `fish`:
+
 ```bash
-./dclaude -v <folder> [-v <folder> ...] [-- <claude args>]
+function dclaude --wraps=dclaude
+      .../claude-docker/dclaude $argv
+  end
+funcsave dclaude
+```
+then run it from your project, giving access to needed folders with `-v`:
+
+```bash
+dclaude -v <folder> [-v <folder> ...] [-- <claude args>]
+dclaude -v projects --dangerously-skip-permissions
 ```
 
 Folders are relative to `$HOME` and mounted at `/home/claude/<folder>`.
@@ -48,9 +59,20 @@ The working directory inside the container is automatically mapped from the host
 | `~/.claude-docker.json` | `/home/claude/.claude.json` | Onboarding state (persisted) |
 | `~/.gitconfig` | `/home/claude/.gitconfig` | Git config (read-only) |
 | `~/.ssh` | `/home/claude/.ssh` | SSH keys for git (read-only) |
+| `~/.dclaude-cargo-target` | `/home/claude/.cargo-target` | Cargo build cache (persisted) |
 
 ## Authentication
 
 Claude Code stores auth credentials in the macOS Keychain, which is not available inside Docker. Instead, the `ANTHROPIC_API_KEY` environment variable is used. The script will fail if it is not set.
 
 A `~/.claude-docker.json` file is created on first run to skip the onboarding/login prompt. This file persists between sessions, so any settings Claude Code writes to it (e.g. plugins) are retained.
+
+## Cargo Build Cache
+
+Cargo builds use a separate target directory at `~/.dclaude-cargo-target` on the host to persist compiled artifacts between sessions. This avoids recompiling dependencies on every run.
+
+To clean the cache:
+
+```bash
+rm -rf ~/.dclaude-cargo-target
+```
