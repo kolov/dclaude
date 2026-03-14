@@ -58,19 +58,18 @@ if [ ! -f "$CLAUDE_JSON" ]; then
   echo '{"hasCompletedOnboarding":true,"lastOnboardingVersion":"2.1.23"}' > "$CLAUDE_JSON"
 fi
 
-# Persistent cargo directories for Docker builds
-CARGO_TARGET="$HOME/.dclaude-cargo-target"
+# Cargo registry is mounted for crate caching between runs.
+# Cargo target dir is NOT mounted — it lives inside the container because
+# Docker Desktop's VirtioFS file sharing is too slow for Rust's heavy I/O.
 CARGO_REGISTRY="$HOME/.dclaude-cargo-registry"
-mkdir -p "$CARGO_TARGET" "$CARGO_REGISTRY"
+mkdir -p "$CARGO_REGISTRY"
 
 # Map current host directory to its container equivalent
 CONTAINER_WD=$(echo "$PWD" | sed "s|$HOME/|/home/claude/|")
 
 docker run -it --rm \
   -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
-  -e CARGO_TARGET_DIR=/home/claude/.cargo-cache/target \
   "${VOLUME_ARGS[@]}" \
-  -v "$CARGO_TARGET":/home/claude/.cargo-cache \
   -v "$CARGO_REGISTRY":/home/claude/.cargo/registry \
   -v "$HOME/.claude":/home/claude/.claude \
   -v "$HOME/.gitconfig":/home/claude/.gitconfig:ro \

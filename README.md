@@ -16,21 +16,29 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 docker build -t akolov/claude .
 ```
 
+To update Claude Code without rebuilding the full image:
+
+```bash
+export CLAUDE_VERSION=$(npm view @anthropic-ai/claude-code version)
+docker build --build-arg CLAUDE_VERSION=$CLAUDE_VERSION -t akolov/claude .
+```
+
 ## Usage
 
 Recommended: make the script available, e.g in `fish`:
 
 ```bash
-function dclaude --wraps=dclaude
-      .../claude-docker/dclaude $argv
-  end
+function dclaude 
+      {absolute_path}/dclaude $argv
+end
+  
 funcsave dclaude
 ```
 then run it from your project, giving access to needed folders with `-v`:
 
 ```bash
 dclaude -v <folder> [-v <folder> ...] [-- <claude args>]
-dclaude -v projects --dangerously-skip-permissions
+dclaude -v projects -- --dangerously-skip-permissions
 ```
 
 Folders are relative to `$HOME` and mounted at `/home/claude/<folder>`.
