@@ -64,6 +64,11 @@ fi
 CARGO_REGISTRY="$HOME/.dclaude-cargo-registry"
 mkdir -p "$CARGO_REGISTRY"
 
+# Mount gcloud config if it exists
+if [ -d "$HOME/.config/gcloud" ]; then
+  VOLUME_ARGS+=(-v "$HOME/.config/gcloud:/home/claude/.config/gcloud:ro")
+fi
+
 # Map current host directory to its container equivalent
 CONTAINER_WD=$(echo "$PWD" | sed "s|$HOME/|/home/claude/|")
 
