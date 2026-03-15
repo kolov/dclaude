@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xz-utils \
     apt-transport-https \
     gnupg \
+    postgresql-client \
   && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
      > /etc/apt/sources.list.d/google-cloud-sdk.list \
   && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \

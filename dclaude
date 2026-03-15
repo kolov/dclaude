@@ -6,16 +6,17 @@
 #   Example: ./dclaude -v cx -v ak -- --help
 
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-  echo "Usage: ./dclaude -v <folder> [-v <folder> ...] [-- <claude args>]"
+  echo "Usage: ./dclaude -v <folder> [-p <port>] [-- <claude args>]"
   echo ""
   echo "  -v <folder>   Mount ~/folder to /home/claude/folder (repeatable)"
+  echo "  -p <port>     Forward host port into the container (repeatable)"
   echo "  --            Separator; remaining args are passed to claude"
   echo "  -h, --help    Show this help"
   echo ""
   echo "Examples:"
   echo "  ./dclaude -v cx -v ak"
+  echo "  ./dclaude -v cx -p 5432"
   echo "  ./dclaude -v cx -v ak -- --help"
-  echo "  ./dclaude -v cx"
   exit 0
 fi
 
@@ -36,6 +37,7 @@ else
 fi
 
 VOLUME_ARGS=()
+PORT_ARGS=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -v)
@@ -44,6 +46,14 @@ while [[ $# -gt 0 ]]; do
         exit 1
       fi
       VOLUME_ARGS+=(-v "$HOME/$2:/home/claude/$2")
+      shift 2
+      ;;
+    -p)
+      if [ -z "$2" ]; then
+        echo "Error: -p requires a port number" >&2
+        exit 1
+      fi
+      PORT_ARGS+=(-p "$2:$2")
       shift 2
       ;;
     --)
@@ -84,8 +94,10 @@ fi
 CONTAINER_WD=$(echo "$PWD" | sed "s|$HOME/|/home/claude/|")
 
 docker run -it --rm \
+  --add-host=host.docker.internal:host-gateway \
   "${AUTH_ARGS[@]}" \
   "${VOLUME_ARGS[@]}" \
+  "${PORT_ARGS[@]}" \
   -v "$CARGO_REGISTRY":/home/claude/.cargo/registry \
   -v "$HOME/.claude":/home/claude/.claude \
   -v "$HOME/.gitconfig":/home/claude/.gitconfig:ro \

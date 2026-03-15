@@ -1,0 +1,10 @@
+#!/bin/bash
+# Build the Docker image with the latest Claude Code version.
+# Usage: ./build [image-tag]
+#   Default tag: akolov/claude
+
+TAG="${1:-akolov/claude}"
+CLAUDE_VERSION=$(npm view @anthropic-ai/claude-code version)
+
+echo "Building $TAG with Claude Code $CLAUDE_VERSION"
+docker build --build-arg CLAUDE_VERSION="$CLAUDE_VERSION" -t "$TAG" .

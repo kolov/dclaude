@@ -15,15 +15,11 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 ## Build
 
 ```bash
-docker build -t akolov/claude .
+./build              # defaults to akolov/claude
+./build my-tag       # custom image tag
 ```
 
-To update Claude Code without rebuilding the full image:
-
-```bash
-export CLAUDE_VERSION=$(npm view @anthropic-ai/claude-code version)
-docker build --build-arg CLAUDE_VERSION=$CLAUDE_VERSION -t akolov/claude .
-```
+This fetches the latest Claude Code version from npm and builds the image.
 
 ## Usage
 
