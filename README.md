@@ -1,10 +1,12 @@
 # Claude Code in Docker
 
-Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI inside a Docker container with access to local project directories.
+Run [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI inside a Docker container with access to local project directories. Reuses your Claude Max subscription — no separate API billing needed.
 
 ## Prerequisites
 
-Set the `ANTHROPIC_API_KEY` environment variable before running:
+No additional setup is needed if you are logged into Claude Code on your Mac. The script automatically extracts your OAuth credentials from the macOS Keychain, allowing you to **reuse your Claude Max subscription** inside the container without separate API billing.
+
+Alternatively, you can set the `ANTHROPIC_API_KEY` environment variable to use API key authentication instead (billed separately from Max):
 
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
@@ -71,9 +73,12 @@ The working directory inside the container is automatically mapped from the host
 
 ## Authentication
 
-Claude Code stores auth credentials in the macOS Keychain, which is not available inside Docker. Instead, the `ANTHROPIC_API_KEY` environment variable is used. The script will fail if it is not set.
+The script supports two authentication methods, checked in this order:
 
-A `~/.claude-docker.json` file is created on first run to skip the onboarding/login prompt. This file persists between sessions, so any settings Claude Code writes to it (e.g. plugins) are retained.
+1. **`ANTHROPIC_API_KEY` env var** — if set, passed directly to the container. Uses API billing.
+2. **macOS Keychain (OAuth)** — if no API key is set, the script extracts OAuth credentials from the macOS Keychain. This reuses your existing Claude Max subscription, so no separate API credits are needed. The credentials are written to a plaintext file inside the container (`~/.claude/.credentials.json`) that Claude Code reads on Linux.
+
+A `~/.claude-docker.json` file is created on first run to skip the onboarding/login prompt. This file persists between sessions.
 
 ## Cargo Build Cache
 
