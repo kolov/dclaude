@@ -24,12 +24,11 @@ if [ -n "$ANTHROPIC_API_KEY" ]; then
   AUTH_ARGS+=(-e "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY")
 else
   # Try to extract OAuth credentials from macOS Keychain
-  OAUTH_ACCOUNT=$(security find-generic-password -s "Claude Code-credentials" 2>/dev/null | grep '"acct"' | sed 's/.*<blob>="\(.*\)"/\1/')
   OAUTH_CREDS=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-  if [ -n "$OAUTH_CREDS" ] && [ -n "$OAUTH_ACCOUNT" ]; then
+  if [ -n "$OAUTH_CREDS" ]; then
     # Note: credentials are briefly visible via `docker inspect` but are
     # unset from the process environment in entrypoint.sh.
-    AUTH_ARGS+=(-e "CLAUDE_OAUTH_CREDENTIALS=$OAUTH_CREDS" -e "CLAUDE_OAUTH_ACCOUNT=$OAUTH_ACCOUNT")
+    AUTH_ARGS+=(-e "CLAUDE_OAUTH_CREDENTIALS=$OAUTH_CREDS")
   else
     echo "Error: ANTHROPIC_API_KEY is not set and no OAuth credentials found in Keychain" >&2
     exit 1
